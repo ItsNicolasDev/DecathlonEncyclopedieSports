@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://unpkg.com/@vtmn/css" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Condensed:ital,wght@0,400;0,700;1,700&display=swap"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<title>Decathlon, l'encyclopédie des sports</title>
+	<script>
+		var val;
+		var requestURL = 'https://sports.api.decathlon.com/sports';
+		var request = new XMLHttpRequest();
+		request.open('GET', requestURL);
+		request.responseType = 'json';
+		request.setRequestHeader("Accept-Language", "fr-FR");
+		request.send();
+		request.onload = function() {
+			val = request.response;
+			acceuil();
+		}
+
+		function acceuil(){
+			document.getElementById("content").innerHTML = x;
+			document.getElementById("nbsports").innerHTML = (val.data).length;
+			let alreadydiscover = [];
+			var nbdiscover = 0;
+			discover();	
+			function discover(){
+				var i = Math.floor(Math.random() * (val.data).length);
+				if (val.data[i].attributes.name != null && val.data[i].relationships.images.data[0] != null & val.data[i].attributes.icon != null && val.data[i].attributes.description != null && alreadydiscover.indexOf(i) == -1) {
+	  				var print = "<div class='block'><div class='vtmn-card' style='min-width: 700px;'>";
+	  				print += "<div class='vtmn-card_image' style='width:100%;'><img src='"+val.data[i].relationships.images.data[0].url+"' style='max-width: 500px; max-height: 333px;'/></div>";
+	  				print += "<div class='vtmn-card_content'><span class='vtmn-card_content--title'>";
+	  				print += "<img src='"+val.data[i].attributes.icon+"' style='width: 70px; height: 70px;'>";
+			   		print += "<span id='sporttile'>"+val.data[i].attributes.name+"</span></span>";
+			   		print +="<span class='vtmn-card_content--body'>"+val.data[i].attributes.description+"</span>"
+			   		print += "</div></div></div><br>";
+			   		
+			   		document.getElementById("discoversport").innerHTML += print;
+			   		alreadydiscover.push(i);
+			   		nbdiscover++;
+			   		if (nbdiscover < 3) {
+			   			discover();
+			   		}
+		  		}else{
+		  			discover();
+		  		}
+			}
+		}
+
+
+
+		function submitForm(){
+			saisie = document.getElementById("searchsport").value;
+			if (saisie.length > 1) {
+				document.getElementById("content").innerHTML = "";
+			  	for (var i = 0; i < (val.data).length; i++) {
+			  		if (val.data[i].attributes.name != null) {
+			  			if ((val.data[i].attributes.name).toLowerCase().includes(saisie.toLowerCase())) {
+
+
+			  				var print = "<div class='block'><div class='vtmn-card' style='min-width: 700px;'>";
+			  				if (val.data[i].relationships.images.data[0] != null) {
+			  					print += "<div class='vtmn-card_image' style='width:100%;'><img src='"+val.data[i].relationships.images.data[0].url+"' style='max-width: 500px; max-height: 333px;'/></div>";
+					   		}
+
+			  				print += "<div class='vtmn-card_content'><span class='vtmn-card_content--title'>";
+
+			  				if (val.data[i].attributes.icon != null) {
+			  					print += "<img src='"+val.data[i].attributes.icon+"' style='width: 70px; height: 70px;'>";
+					   		}
+
+					   		print += "<span id='sporttile'>"+val.data[i].attributes.name+"</span></span>";
+
+
+					   		if (val.data[i].attributes.description != null) {
+					   			print +="<span class='vtmn-card_content--body'>"+val.data[i].attributes.description+"</span>"
+					   		}
+
+					   		print += "</div></div></div><br>";
+					   		
+					   		document.getElementById("content").innerHTML += print;	  				
+					   	}
+			  		}
+			  		
+				}
+				if (document.getElementById("content").innerHTML == "") {
+					document.getElementById("content").innerHTML = "<div class='block'><div class='vtmn-card'><div class='vtmn-card_content'><span class='vtmn-card_content--body'>Pas de résultat !</span></div></div></div>";
+					
+			  	}
+		  	}else{
+		  		acceuil();
+		  	}
+		}
+	</script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+      <a class="navbar-brand" href="/" style="margin-left: 50px; font-family:'Roboto'";><span style="color: #007DBC;">Decathlon</span>, l'encyclopédie des sports</a>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      </ul>
+      <input type="text" class="vtmn-text-input" style="width: 400px; margin-right: 50px;" id="searchsport" placeholder="Rechercher un sport" onkeyup="submitForm()"/>
+    </div>
+  </div>
+</nav>
+<br>
+<div class="container">
+ 	<center>
+ 		<div id="content">	
+		 	<div class="row">
+		    	<div class="col">
+		      		<h3 style="color: #007DBC;">Découvrer des sports</h3>
+		     		<div id="discoversport"></div>
+		    	</div>
+		    	<div class="col">
+		     		<div class="block">
+  						<div class="vtmn-card">
+	    					<div class="vtmn-card_content">
+	      						<span class="vtmn-card_content--title">Présentation</span><br>
+	      						<span class="vtmn-card_content--body">
+	        						Decathlon, l'encyclopédie des sports, est comme dit un <b>encyclopédie</b> basé sur l'<b>API de Décathlon</b>.
+	        						<br>
+	        						Cette encyclopédie est crée durant la <b>Nuit de l'info 2021</b>, elle réprésente un défi proposé par Décathlon.
+	        						<br><br>
+	        						Elle contient <b><span id="nbsports"></span></b> sports.
+	        						<br><br>
+	        						Dévéloppé par <A HREF="mailto:nicolas@nade.fr" style="color: #007DBC; text-decoration: none;">Nicolas Nadé</A>
+	      						</span>
+	    					</div>
+  						</div>
+					</div>
+		    	</div>
+		  	</div>
+ 		</div>
+	<center>
+</div>
+<br>
+<div class="container">
+  	<footer class="border-top">
+  		<br>
+  		<center style="font-family: 'Roboto';">
+  			<span style="color: #007DBC;">Decathlon</span>, l'encyclopédie des sports
+  			<p>Développé par Nicolas Nadé dans le cadre de la <b>Nuit de l'info Édition 2021</b>, défi proposé par <span style="color: #007DBC;">Decathlon</span> ©</p>
+  		</center>
+ 	</footer>
+</div>
+</body>
+<script>
+	var x = document.getElementById("content").innerHTML;
+</script>
+</html>
